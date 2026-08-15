@@ -572,6 +572,27 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // DELETE /api/attendance (Admin Only)
+  if (pathname === '/api/attendance' && method === 'DELETE') {
+    if (!isAdmin) return sendJSON(res, { error: 'Forbidden. Admin privileges required.' }, 403);
+    try {
+      const studentId = parsedUrl.searchParams.get('student_id');
+      const date = parsedUrl.searchParams.get('date');
+      if (!studentId || !date) {
+        return sendJSON(res, { error: 'student_id and date are required.' }, 400);
+      }
+
+      db.prepare('DELETE FROM attendance WHERE student_id = ? AND attendance_date = ?').run(studentId, date);
+      
+      // Sync to Excel
+      syncDatabaseToExcel();
+
+      return sendJSON(res, { success: true, message: 'Attendance record cleared.' }, 200);
+    } catch (error) {
+      return sendJSON(res, { error: error.message }, 500);
+    }
+  }
+
   // GET /api/analytics
   if (pathname === '/api/analytics' && method === 'GET') {
     try {
