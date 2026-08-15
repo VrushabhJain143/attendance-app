@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Student Attendance Manager</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="/app.css">
+  
+  <!-- PWA Manifest & Meta Tags -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Attendance">
+  <link rel="apple-touch-icon" href="/icon.svg">
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- CUSTOM CONFIRM MODAL -->
+    <div id="confirm-modal" class="modal-overlay">
+      <div class="modal-box">
+        <div id="modal-title" class="modal-title">Confirm Action</div>
+        <div id="modal-message" class="modal-message">Are you sure you want to proceed?</div>
+        <div class="modal-actions">
+          <button id="modal-cancel-btn" class="btn-modal cancel">Cancel</button>
+          <button id="modal-confirm-btn" class="btn-modal confirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 1: LOGIN                                -->
+    <!-- ============================================== -->
+    <div id="screen-login" class="screen-panel login-screen active">
+      <div class="login-card">
+        <div class="app-logo">
+          <!-- SVG Checkbox and Pen -->
+          <svg viewBox="0 0 24 24">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+        </div>
+        <h1 class="login-title">Attendance Manager</h1>
+        <p class="login-subtitle">Student Attendance System</p>
+        
+        <form id="login-form" style="width: 100%;">
+          <div class="form-group">
+            <label class="form-label" for="login-username">Username</label>
+            <input type="text" id="login-username" class="form-input" placeholder="Enter username" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <input type="password" id="login-password" class="form-input" placeholder="Enter password" required>
+          </div>
+          <div class="login-options">
+            <label class="checkbox-container">
+              <input type="checkbox" id="login-remember"> Remember Me
+            </label>
+            <a href="#" id="forgot-password" class="forgot-link">Forgot?</a>
+          </div>
+          <button type="submit" class="btn-primary">
+            <span>Login Now</span>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 2: ATTENDANCE DASHBOARD                 -->
+    <!-- ============================================== -->
+    <div id="screen-dashboard" class="screen-panel">
+      <!-- Top Header Navigation -->
+      <header class="app-header">
+        <div class="header-left">
+          <button id="dash-add-btn" class="btn-header add">
+            <span>+ ADD NEW</span>
+          </button>
+        </div>
+        <div class="header-title">Attendance</div>
+        <div class="header-right">
+          <button id="dash-mark-btn" class="btn-header present">
+            <span>MARK PRESENT</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Date bar with quick saturday indicators -->
+      <section class="date-bar">
+        <div class="date-text-container">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span id="display-date">Saturday, 12 August 2026</span>
+        </div>
+        <button id="date-picker-btn" class="btn-date-picker">
+          <span>Change</span>
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <input type="date" id="hidden-date-picker" style="display: none;">
+      </section>
+
+      <!-- Dynamic scroll content -->
+      <div class="screen-content">
+        <!-- Dashboard Statistics Cards -->
+        <div class="stats-grid">
+          <div class="stats-card total">
+            <span class="stats-label">Total Students</span>
+            <span id="stat-total" class="stats-value">0</span>
+          </div>
+          <div class="stats-card present">
+            <span class="stats-label">Present</span>
+            <span id="stat-present" class="stats-value">0</span>
+          </div>
+          <div class="stats-card absent">
+            <span class="stats-label">Absent</span>
+            <span id="stat-absent" class="stats-value">0</span>
+          </div>
+          <div class="stats-card remaining">
+            <span class="stats-label">Not Marked</span>
+            <span id="stat-remaining" class="stats-value">0</span>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-wrapper">
+          <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="search-students" class="search-input" placeholder="Search student by name, phone, class...">
+        </div>
+
+        <!-- Student Checklist -->
+        <div id="student-list" class="student-list-container">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Bottom sticky action footer -->
+      <div class="sticky-footer-actions">
+        <button id="dash-absent-remaining-btn" class="btn-secondary">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+          <span>MARK REMAINING ABSENT</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 3: ADD / EDIT STUDENT                   -->
+    <!-- ============================================== -->
+    <div id="screen-student-form" class="screen-panel">
+      <header class="app-header">
+        <div class="header-left">
+          <button id="student-form-back" class="btn-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+        </div>
+        <div id="student-form-title" class="header-title">Add New Student</div>
+        <div class="header-right" style="width:40px;"></div>
+      </header>
+
+      <div class="screen-content">
+        <form id="student-form">
+          <input type="hidden" id="form-student-id">
+          
+          <!-- Photo Upload Option -->
+          <div class="photo-upload-container">
+            <div id="photo-preview" class="photo-preview-circle">
+              <!-- Default User Icon -->
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <label for="student-photo-input" class="photo-upload-label">UPLOAD PHOTO</label>
+            <input type="file" id="student-photo-input" class="photo-upload-input" accept="image/*">
+          </div>
+
+          <!-- Student Name -->
+          <div class="form-group">
+            <label class="form-label" for="form-name">Student Name *</label>
+            <input type="text" id="form-name" class="form-input" placeholder="Enter student name" required>
+          </div>
+
+          <!-- Contact Number -->
+          <div class="form-group">
+            <label class="form-label" for="form-contact">Contact Number *</label>
+            <input type="tel" id="form-contact" class="form-input" placeholder="Enter contact number (e.g. 9876543210)" required>
+          </div>
+
+          <!-- Class Standard -->
+          <div class="form-group">
+            <label class="form-label" for="form-standard">Standard / Class *</label>
+            <select id="form-standard" class="form-select" required>
+              <option value="">Select standard</option>
+              <option value="Nursery">Nursery</option>
+              <option value="Jr. KG">Jr. KG</option>
+              <option value="Sr. KG">Sr. KG</option>
+              <option value="1st">1st</option>
+              <option value="2nd">2nd</option>
+              <option value="3rd">3rd</option>
+              <option value="4th">4th</option>
+              <option value="5th">5th</option>
+              <option value="6th">6th</option>
+              <option value="7th">7th</option>
+              <option value="8th">8th</option>
+              <option value="9th">9th</option>
+              <option value="10th">10th</option>
+              <option value="11th">11th</option>
+              <option value="12th">12th</option>
+            </select>
+          </div>
+
+          <!-- Address -->
+          <div class="form-group">
+            <label class="form-label" for="form-address">Address *</label>
+            <textarea id="form-address" class="form-textarea" placeholder="Enter address" required></textarea>
+          </div>
+
+          <div style="margin-top: 32px;">
+            <button type="submit" id="form-submit-btn" class="btn-primary">
+              <span>SAVE STUDENT</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 4: STUDENT PROFILE                      -->
+    <!-- ============================================== -->
+    <div id="screen-student-profile" class="screen-panel">
+      <header class="app-header">
+        <div class="header-left">
+          <button id="profile-back" class="btn-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+        </div>
+        <div class="header-title">Student Profile</div>
+        <div class="header-right">
+          <!-- Admin actions: Edit & Delete -->
+          <button id="profile-edit-btn" class="btn-icon admin-only">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </button>
+          <button id="profile-delete-btn" class="btn-icon admin-only" style="color: var(--danger);">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="screen-content">
+        <!-- Profile details -->
+        <div class="profile-card">
+          <img id="profile-img" src="" class="profile-photo" alt="Photo">
+          <h2 id="profile-name" class="profile-name">Student Name</h2>
+          <span id="profile-student-id" class="profile-id">STU001</span>
+          
+          <div class="profile-meta-grid">
+            <div class="profile-meta-card">
+              <div class="profile-meta-label">Standard</div>
+              <div id="profile-class" class="profile-meta-value">-</div>
+            </div>
+            <div class="profile-meta-card">
+              <div class="profile-meta-label">Contact</div>
+              <a id="profile-phone-link" href="#" style="text-decoration:none;"><div id="profile-phone" class="profile-meta-value">-</div></a>
+            </div>
+            <div class="profile-meta-card full-width">
+              <div class="profile-meta-label">Address</div>
+              <div id="profile-address" class="profile-meta-value">-</div>
+            </div>
+          </div>
+
+          <!-- Attendance percentage details -->
+          <div class="profile-stats-container">
+            <div class="stats-circle-container">
+              <span id="profile-stat-percentage" class="stats-circle-value">0%</span>
+              <span class="stats-mini-label">ATTENDANCE</span>
+            </div>
+            <div class="stats-circle-container">
+              <span id="profile-stat-total" class="stats-circle-value">0</span>
+              <span class="stats-mini-label">CLASSES</span>
+            </div>
+            <div class="stats-circle-container">
+              <span id="profile-stat-present" class="stats-circle-value" style="color: var(--success);">0</span>
+              <span class="stats-mini-label">PRESENT</span>
+            </div>
+            <div class="stats-circle-container">
+              <span id="profile-stat-absent" class="stats-circle-value" style="color: var(--danger);">0</span>
+              <span class="stats-mini-label">ABSENT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance history list -->
+        <div class="history-card">
+          <h3 class="section-title">Attendance History</h3>
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="profile-history-rows">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 5: ATTENDANCE HISTORY (REPORT)          -->
+    <!-- ============================================== -->
+    <div id="screen-history" class="screen-panel">
+      <header class="app-header">
+        <div class="header-left" style="width:40px;"></div>
+        <div class="header-title">Attendance Report</div>
+        <div class="header-right">
+          <!-- Admin Actions: Excel Export -->
+          <button id="history-export-btn" class="btn-header present admin-only">
+            <span>EXPORT</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="screen-content">
+        <!-- Query filter inputs -->
+        <div class="history-controls">
+          <div class="controls-row">
+            <div>
+              <label class="form-label" for="history-filter-date">Date</label>
+              <input type="date" id="history-filter-date" class="form-input">
+            </div>
+            <div>
+              <label class="form-label" for="history-filter-standard">Standard</label>
+              <select id="history-filter-standard" class="form-select">
+                <option value="">All Standards</option>
+                <option value="Nursery">Nursery</option>
+                <option value="Jr. KG">Jr. KG</option>
+                <option value="Sr. KG">Sr. KG</option>
+                <option value="1st">1st</option>
+                <option value="2nd">2nd</option>
+                <option value="3rd">3rd</option>
+                <option value="4th">4th</option>
+                <option value="5th">5th</option>
+                <option value="6th">6th</option>
+                <option value="7th">7th</option>
+                <option value="8th">8th</option>
+                <option value="9th">9th</option>
+                <option value="10th">10th</option>
+                <option value="11th">11th</option>
+                <option value="12th">12th</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day stats summary bar -->
+        <div id="history-report-summary" class="report-summary-bar">
+          <div class="report-summary-item">
+            <span id="history-summary-total" class="report-summary-val">0</span>
+            <span class="report-summary-lbl">Students</span>
+          </div>
+          <div class="report-summary-item">
+            <span id="history-summary-present" class="report-summary-val">0</span>
+            <span class="report-summary-lbl">Present</span>
+          </div>
+          <div class="report-summary-item">
+            <span id="history-summary-absent" class="report-summary-val">0</span>
+            <span class="report-summary-lbl">Absent</span>
+          </div>
+          <div class="report-summary-item">
+            <span id="history-summary-pct" class="report-summary-val">0%</span>
+            <span class="report-summary-lbl">Rate</span>
+          </div>
+        </div>
+
+        <!-- Search student in report -->
+        <div class="search-wrapper">
+          <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="history-search-input" class="search-input" placeholder="Search student name in report...">
+        </div>
+
+        <!-- Attendance list for the day -->
+        <div class="history-card" style="padding:0; overflow:hidden;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Standard</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-rows">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 6: SETTINGS (ADMIN / SYSTEM CONTROLS)   -->
+    <!-- ============================================== -->
+    <div id="screen-settings" class="screen-panel">
+      <header class="app-header">
+        <div class="header-left" style="width:40px;"></div>
+        <div class="header-title">System Settings</div>
+        <div class="header-right" style="width:40px;"></div>
+      </header>
+
+      <div class="screen-content">
+        <div class="settings-menu">
+          <!-- User info -->
+          <div class="profile-card" style="padding:16px; margin-bottom:12px;">
+            <div style="font-weight:700; font-size:16px;" id="settings-username-display">Loading User...</div>
+            <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted);" id="settings-role-display">Role: Basic User</div>
+          </div>
+
+          <!-- Admin actions section -->
+          <div class="settings-card admin-only">
+            <h3 class="section-title">Data Administration</h3>
+            
+            <button id="settings-import-btn" class="settings-option-btn" style="margin-bottom: 12px;">
+              <span>Import Students (Excel/CSV)</span>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path><polyline points="16 16 12 12 8 16"></polyline></svg>
+            </button>
+            <input type="file" id="settings-import-file-input" style="display:none;" accept=".xlsx, .xls, .csv">
+
+            <button id="settings-users-btn" class="settings-option-btn">
+              <span>Manage User Accounts</span>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </button>
+          </div>
+
+          <!-- Offline capability test -->
+          <div class="settings-card">
+            <h3 class="section-title">App Installation</h3>
+            <button id="pwa-install-btn" class="settings-option-btn" style="display:none; background-color: var(--primary-light); color: var(--primary); border-color: var(--primary-light);">
+              <span>Install to Home Screen</span>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </button>
+            <div id="pwa-status-text" style="font-size:12px; color:var(--text-muted); text-align:center; padding: 4px;">
+              App is running in browser. Offline mode active.
+            </div>
+          </div>
+
+          <!-- Backup raw excel download -->
+          <div class="settings-card admin-only">
+            <h3 class="section-title">Raw Master File</h3>
+            <a href="/students_attendance.xlsx" download class="settings-option-btn" style="text-decoration:none; color:inherit;">
+              <span>Download Master Excel</span>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </a>
+          </div>
+
+          <!-- Logout Button -->
+          <button id="settings-logout-btn" class="btn-primary" style="background-color: var(--danger); box-shadow: none;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Log Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCREEN 7: USER MANAGEMENT                      -->
+    <!-- ============================================== -->
+    <div id="screen-users" class="screen-panel">
+      <header class="app-header">
+        <div class="header-left">
+          <button id="users-back" class="btn-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+        </div>
+        <div class="header-title">User Accounts</div>
+        <div class="header-right" style="width:40px;"></div>
+      </header>
+
+      <div class="screen-content">
+        <!-- Create user form -->
+        <div class="settings-card" style="margin-bottom:16px;">
+          <h3 class="section-title" id="user-form-title">Add New User</h3>
+          <form id="user-admin-form">
+            <input type="hidden" id="form-user-id">
+            <div class="form-group">
+              <label class="form-label" for="form-user-username">Username *</label>
+              <input type="text" id="form-user-username" class="form-input" placeholder="Enter username" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-user-password" id="user-password-label">Password *</label>
+              <input type="password" id="form-user-password" class="form-input" placeholder="Enter password" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-user-role">Role *</label>
+              <select id="form-user-role" class="form-select" required>
+                <option value="user">Basic User</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button type="button" id="form-user-cancel" class="btn-secondary" style="display:none; padding:10px;">Cancel Edit</button>
+              <button type="submit" class="btn-primary" style="padding:10px;">Save User</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Existing users list -->
+        <div class="settings-card">
+          <h3 class="section-title">Existing Accounts</h3>
+          <div id="users-list-container" class="user-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- GLOBAL BOTTOM NAVIGATION BAR                   -->
+    <!-- ============================================== -->
+    <nav id="bottom-nav-bar" class="bottom-nav" style="display: none;">
+      <button id="nav-dashboard" class="nav-item active">
+        <!-- SVG Clipboard Check -->
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <span>Attendance</span>
+      </button>
+      <button id="nav-history" class="nav-item">
+        <!-- SVG Line Chart / Report -->
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        <span>Report</span>
+      </button>
+      <button id="nav-settings" class="nav-item">
+        <!-- SVG Gear / Settings -->
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Excel helper script (SheetJS) -->
+  <script src="/lib/xlsx.full.min.js"></script>
+  <!-- App JS Logic -->
+  <script src="/app.js"></script>
+  
+  <!-- Service Worker Register -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Service Worker registered successfully!', reg.scope))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>

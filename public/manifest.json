@@ -1,0 +1,18 @@
+{
+  "name": "Student Attendance Manager",
+  "short_name": "Attendance",
+  "description": "Mobile-first attendance management application for students.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f9fafb",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

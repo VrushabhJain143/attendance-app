@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#1e1b4b" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGrad)" />
+  
+  <!-- Clipboard Container -->
+  <g filter="url(#shadow)" transform="translate(136, 116)">
+    <!-- Clipboard Board -->
+    <rect x="10" y="40" width="220" height="280" rx="24" fill="#ffffff" />
+    
+    <!-- Clipboard Header Clip -->
+    <path d="M70 20 C70 10, 80 0, 95 0 L145 0 C160 0, 170 10, 170 20 L170 45 L70 45 Z" fill="#cbd5e1" />
+    <circle cx="120" cy="15" r="8" fill="#94a3b8" />
+    
+    <!-- Lines & Checkmarks -->
+    <!-- Row 1 -->
+    <circle cx="50" cy="110" r="16" fill="#22c55e" />
+    <path d="M43 110 L48 115 L57 105" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <rect x="86" y="102" width="110" height="16" rx="8" fill="#e2e8f0" />
+    
+    <!-- Row 2 -->
+    <circle cx="50" cy="180" r="16" fill="#22c55e" />
+    <path d="M43 180 L48 185 L57 175" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <rect x="86" y="172" width="110" height="16" rx="8" fill="#e2e8f0" />
+    
+    <!-- Row 3 -->
+    <circle cx="50" cy="250" r="16" fill="#e2e8f0" />
+    <rect x="86" y="242" width="90" height="16" rx="8" fill="#e2e8f0" />
+  </g>
+</svg>
