@@ -1,4 +1,4 @@
-﻿// Client Side JavaScript Logic - Student Attendance Manager
+// Client Side JavaScript Logic - Student Attendance Manager
 
 // Global State
 const state = {
@@ -193,6 +193,18 @@ async function loadAnalytics() {
   }
 }
 
+// Helper to update Mark Present button dynamic text and state
+function updateMarkPresentBtnUI() {
+  const markBtnText = document.getElementById('dash-mark-btn-text');
+  if (!markBtnText) return;
+  const count = state.selectedStudents.size;
+  if (count > 0) {
+    markBtnText.textContent = `MARK PRESENT (${count} SELECTED)`;
+  } else {
+    markBtnText.textContent = 'MARK PRESENT';
+  }
+}
+
 // Fetch students list and current date marked status
 async function loadDashboardData() {
   // Load students list
@@ -210,6 +222,7 @@ async function loadDashboardData() {
   // Render stats and lists
   loadAnalytics();
   renderStudentChecklist();
+  updateMarkPresentBtnUI();
 }
 
 // Render student checklist on Dashboard
@@ -294,6 +307,7 @@ function renderStudentChecklist() {
           state.selectedStudents.add(id);
           checkboxEl.classList.add('checked');
         }
+        updateMarkPresentBtnUI();
       });
     }
 
@@ -612,6 +626,7 @@ document.getElementById('dash-mark-btn').addEventListener('click', async () => {
     if (res && !res.error) {
       showToast(res.message);
       state.selectedStudents.clear();
+      updateMarkPresentBtnUI();
       loadDashboardData();
     } else {
       showToast(res.error || 'Failed to submit attendance.', 'error');

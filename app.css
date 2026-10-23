@@ -1,0 +1,1178 @@
+/* Custom Premium CSS stylesheet - Student Attendance Manager */
+
+/* 1. Global Reset & Variables */
+:root {
+  --font-primary: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  
+  /* Color Palette (Indigo Accent, Slate Neutrals) */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #e0e7ff;
+  --success: #10b981;
+  --success-hover: #059669;
+  --success-light: #d1fae5;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --danger-light: #fee2e2;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  
+  --bg-app: #f3f4f6;
+  --bg-card: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
+  --border-color: #e5e7eb;
+  
+  /* Spacing & Borders */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-premium: 0 20px 25px -5px rgba(79, 70, 229, 0.1), 0 10px 10px -5px rgba(79, 70, 229, 0.04);
+  
+  /* Safe Area for Mobile (notch support) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.5;
+  height: 100vh;
+  height: 100dvh;
+  height: -webkit-fill-available;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: 100%;
+}
+
+/* 2. Layout & SPA Panels Container */
+#app-container {
+  width: 100%;
+  max-width: 480px; /* Mobile constraints */
+  margin: 0 auto;
+  height: 100vh;
+  height: 100dvh;
+  height: -webkit-fill-available;
+  background: var(--bg-app);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+}
+
+/* View transition framework */
+.screen-panel {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--bg-app);
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+.screen-panel.active {
+  display: flex;
+  z-index: 10;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollable screen content */
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  padding-bottom: calc(180px + var(--safe-bottom)); /* Leave space for bottom bar / sticky buttons / FAB */
+}
+
+/* 3. Screen 1: Login CSS */
+.login-screen {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app-logo {
+  width: 80px;
+  height: 80px;
+  background: var(--primary);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-premium);
+}
+
+.app-logo svg {
+  width: 44px;
+  height: 44px;
+  fill: none;
+  stroke: white;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.login-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.form-group {
+  width: 100%;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: #f9fafb;
+  color: var(--text-main);
+  transition: all 0.2s;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.login-options {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  font-size: 13px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.checkbox-container input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+.forgot-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btn-primary {
+  width: 100%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: var(--shadow-premium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* 4. Navigation Headers & Subheaders */
+.app-header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  padding: calc(12px + var(--safe-top)) 16px 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.header-center-only {
+  justify-content: center;
+  text-align: center;
+}
+
+.header-title-clean {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #1e1b4b;
+  text-align: center;
+  font-family: 'Outfit', sans-serif;
+  background: linear-gradient(135deg, #4338ca 0%, #ea580c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: background-color 0.2s;
+}
+
+.btn-icon:hover, .btn-icon:active {
+  background-color: var(--bg-app);
+}
+
+.btn-header {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-header.add {
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.btn-header.add:active {
+  background-color: #c7d2fe;
+}
+
+.btn-header.present {
+  background-color: var(--success);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-header.present:active {
+  background-color: var(--success-hover);
+}
+
+/* Sub-header Date Bar */
+.date-bar {
+  background: #ffffff;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.date-text-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-date-picker {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 5. Dashboard Cards (Statistics) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stats-card {
+  background: var(--bg-card);
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  border-left: 4px solid var(--border-color);
+}
+
+.stats-card.total { border-left-color: var(--primary); }
+.stats-card.present { border-left-color: var(--success); }
+.stats-card.absent { border-left-color: var(--danger); }
+.stats-card.remaining { border-left-color: var(--warning); }
+
+.stats-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.stats-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* 6. Sticky Search bar */
+.search-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  outline: none;
+  font-size: 15px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  pointer-events: none;
+}
+
+/* 7. Student List Styling */
+.student-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.student-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.student-card:active {
+  transform: scale(0.99);
+}
+
+.student-checkbox-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Giant touchable checkbox custom styled */
+.custom-checkbox {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background-color: #f9fafb;
+}
+
+.custom-checkbox.checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.custom-checkbox.checked::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.student-photo-thumbnail {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #e5e7eb;
+  border: 2px solid #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.student-info-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.student-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.student-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.student-meta-item {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Status overlays */
+.student-status-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.student-status-badge.present {
+  background-color: var(--success-light);
+  color: var(--success);
+}
+
+.student-status-badge.absent {
+  background-color: var(--danger-light);
+  color: var(--danger);
+}
+
+/* 8. Bottom Navigation Menu */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
+  display: flex;
+  justify-content: space-around;
+  z-index: 90;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.03);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 600;
+  flex: 1;
+  padding: 6px;
+  transition: color 0.2s;
+}
+
+.nav-item svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+/* 9. Floating / Sticky Buttons */
+.fab-btn {
+  position: absolute;
+  bottom: calc(140px + var(--safe-bottom));
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+  z-index: 85;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+}
+
+.fab-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.sticky-footer-actions {
+  position: absolute;
+  bottom: calc(60px + var(--safe-bottom));
+  left: 0;
+  width: 100%;
+  padding: 8px 14px 10px 14px;
+  background: linear-gradient(to top, var(--bg-app) 80%, rgba(243, 244, 246, 0));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 80;
+}
+
+.btn-mark-present {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.3px;
+  border-radius: 12px !important;
+  padding: 13px !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-mark-present:active {
+  transform: scale(0.98);
+}
+
+.btn-mark-absent {
+  padding: 10px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  color: #6b7280 !important;
+  box-shadow: none !important;
+}
+
+.btn-mark-absent:active {
+  background: #f3f4f6 !important;
+}
+
+.btn-secondary {
+  flex: 1;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-secondary:active {
+  background-color: #f9fafb;
+  transform: scale(0.98);
+}
+
+/* 10. Student Add/Edit Page CSS */
+.photo-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.photo-preview-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  border: 4px solid var(--bg-card);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+
+.photo-preview-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-preview-circle svg {
+  width: 40px;
+  height: 40px;
+  color: var(--text-muted);
+}
+
+.photo-upload-label {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.photo-upload-input {
+  display: none;
+}
+
+.form-select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: #f9fafb;
+  color: var(--text-main);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+}
+
+.form-select:focus {
+  border-color: var(--primary);
+  background-color: #ffffff;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: #f9fafb;
+  color: var(--text-main);
+  outline: none;
+  resize: none;
+  height: 80px;
+}
+
+.form-textarea:focus {
+  border-color: var(--primary);
+  background-color: #ffffff;
+}
+
+/* 11. Profile Page CSS */
+.profile-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 24px 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #f3f4f6;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 12px;
+}
+
+.profile-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.profile-id {
+  font-size: 12px;
+  font-weight: 700;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.profile-meta-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.profile-meta-card {
+  background-color: #f9fafb;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  text-align: left;
+  font-size: 13px;
+}
+
+.profile-meta-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.profile-meta-value {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.profile-meta-card.full-width {
+  grid-column: span 2;
+}
+
+/* Circular progress indicator */
+.profile-stats-container {
+  width: 100%;
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.stats-circle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stats-circle-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.stats-mini-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.history-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 12px;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th, .history-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+}
+
+.history-table th {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* 12. History Report Page Styling */
+.history-controls {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.controls-row {
+  display: flex;
+  gap: 12px;
+}
+
+.controls-row > * {
+  flex: 1;
+}
+
+.report-summary-bar {
+  background: var(--primary-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  color: var(--primary);
+}
+
+.report-summary-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.report-summary-val {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.report-summary-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--primary-hover);
+}
+
+/* 13. Settings & User Management Page */
+.settings-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-option-btn {
+  width: 100%;
+  padding: 16px;
+  background-color: #f9fafb;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.settings-option-btn:active {
+  background-color: var(--border-color);
+}
+
+/* User management specific styles */
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: #f9fafb;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-role {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.user-delete-btn {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-delete-btn:active {
+  background-color: var(--danger-light);
+}
+
+/* 14. Dialogs & Toast Notifications */
+.toast-container {
+  position: absolute;
+  top: calc(16px + var(--safe-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideDown 0.3s ease-out forwards;
+  pointer-events: auto;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.toast.success { background-color: var(--success); }
+.toast.error { background-color: var(--danger); }
+.toast.info { background-color: var(--primary); }
+
+/* Custom Modal Dialog */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-box {
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+  animation: modalScale 0.2s ease-out forwards;
+  max-width: 380px;
+}
+
+@keyframes modalScale {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.modal-message {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-modal {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-modal.cancel {
+  background-color: #f3f4f6;
+  color: var(--text-main);
+}
+
+.btn-modal.confirm {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-modal.confirm.danger {
+  background-color: var(--danger);
+}
