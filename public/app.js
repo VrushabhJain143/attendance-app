@@ -193,6 +193,18 @@ async function loadAnalytics() {
   }
 }
 
+// Helper to update Mark Present button dynamic text and state
+function updateMarkPresentBtnUI() {
+  const markBtnText = document.getElementById('dash-mark-btn-text');
+  if (!markBtnText) return;
+  const count = state.selectedStudents.size;
+  if (count > 0) {
+    markBtnText.textContent = `MARK PRESENT (${count} SELECTED)`;
+  } else {
+    markBtnText.textContent = 'MARK PRESENT';
+  }
+}
+
 // Fetch students list and current date marked status
 async function loadDashboardData() {
   // Load students list
@@ -210,6 +222,7 @@ async function loadDashboardData() {
   // Render stats and lists
   loadAnalytics();
   renderStudentChecklist();
+  updateMarkPresentBtnUI();
 }
 
 // Render student checklist on Dashboard
@@ -294,6 +307,7 @@ function renderStudentChecklist() {
           state.selectedStudents.add(id);
           checkboxEl.classList.add('checked');
         }
+        updateMarkPresentBtnUI();
       });
     }
 
@@ -333,49 +347,16 @@ async function openStudentProfile(studentId) {
     const tableBody = document.getElementById('profile-history-rows');
     tableBody.innerHTML = '';
     
-    const isAdmin = state.user && state.user.role === 'admin';
     if (history.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="${isAdmin ? 3 : 2}" style="text-align:center; color:var(--text-muted);">No attendance history found.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--text-muted);">No attendance history found.</td></tr>`;
     } else {
       history.forEach(row => {
         const tr = document.createElement('tr');
         const badgeClass = row.status === 'Present' ? 'present' : 'absent';
-        
-        const deleteButtonHtml = isAdmin ? `
-          <td style="text-align:right;">
-            <button class="delete-attendance-btn" data-date="${row.attendance_date}" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:6px; display:inline-flex; align-items:center;">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            </button>
-          </td>
-        ` : '';
-
         tr.innerHTML = `
           <td>${formatDateLong(row.attendance_date)}</td>
           <td><span class="student-status-badge ${badgeClass}">${row.status}</span></td>
-          ${deleteButtonHtml}
         `;
-
-        if (isAdmin) {
-          const btn = tr.querySelector('.delete-attendance-btn');
-          if (btn) {
-            btn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              const date = btn.getAttribute('data-date');
-              showConfirm('Clear Attendance', `Clear attendance for ${student.name} on ${formatDateLong(date)}?`, async () => {
-                const res = await apiFetch(`/api/attendance?student_id=${student.student_id}&date=${date}`, {
-                  method: 'DELETE'
-                });
-                if (res && !res.error) {
-                  showToast('Attendance record cleared.');
-                  openStudentProfile(student.student_id); // Reload profile
-                } else {
-                  showToast(res.error || 'Failed to clear attendance.', 'error');
-                }
-              });
-            });
-          }
-        }
-
         tableBody.appendChild(tr);
       });
     }
@@ -387,7 +368,14 @@ async function openStudentProfile(studentId) {
 }
 
 // Fetch and Render Attendance History Report Screen
-async function loadHistoryReport() {
+// Debounce timer to avoid double-firing when both 'input' and 'change' events
+// fire together (which happens with native date pickers in most browsers)
+let _historyDebounceTimer = null;
+function loadHistoryReport() {
+  clearTimeout(_historyDebounceTimer);
+  _historyDebounceTimer = setTimeout(_doLoadHistoryReport, 80);
+}
+async function _doLoadHistoryReport() {
   const dateInputVal = document.getElementById('history-filter-date').value;
   const standardVal = document.getElementById('history-filter-standard').value;
   const searchVal = document.getElementById('history-search-input').value.toLowerCase().trim();
@@ -638,6 +626,7 @@ document.getElementById('dash-mark-btn').addEventListener('click', async () => {
     if (res && !res.error) {
       showToast(res.message);
       state.selectedStudents.clear();
+      updateMarkPresentBtnUI();
       loadDashboardData();
     } else {
       showToast(res.error || 'Failed to submit attendance.', 'error');
@@ -684,6 +673,10 @@ document.getElementById('nav-settings').addEventListener('click', () => {
 });
 
 // History filter listeners
+// Use both 'input' and 'change' events on the date field:
+// - 'input' fires immediately when the value changes via date picker (most browsers)
+// - 'change' fires on blur / keyboard entry commit — catches remaining edge cases
+document.getElementById('history-filter-date').addEventListener('input', loadHistoryReport);
 document.getElementById('history-filter-date').addEventListener('change', loadHistoryReport);
 document.getElementById('history-filter-standard').addEventListener('change', loadHistoryReport);
 document.getElementById('history-search-input').addEventListener('input', loadHistoryReport);
@@ -1039,3 +1032,4 @@ window.addEventListener('offline', () => {
 window.addEventListener('DOMContentLoaded', () => {
   checkAuthSession();
 });
+
