@@ -4,6 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { db, initDatabase, hashPassword, getNextStudentId } = require('./db');
 const { syncDatabaseToExcel, importStudentsFromExcelBuffer } = require('./excelSync');
+const { syncAttendanceToGoogleSheets, syncStudentToGoogleSheets } = require('./googleSheetsSync');
 
 // Initialize SQLite DB
 initDatabase();
@@ -297,6 +298,15 @@ const server = http.createServer(async (req, res) => {
       // Sync to Excel
       syncDatabaseToExcel();
 
+      // Sync to Google Sheets
+      syncStudentToGoogleSheets({
+        student_id: studentId,
+        name: name.trim(),
+        contact_number: contact_number.trim(),
+        standard,
+        address: (address || '').trim()
+      });
+
       return sendJSON(res, { success: true, student_id: studentId, message: 'Student added successfully.' }, 201);
     } catch (error) {
       return sendJSON(res, { error: error.message }, 500);
@@ -514,6 +524,25 @@ const server = http.createServer(async (req, res) => {
       // Sync to Excel
       syncDatabaseToExcel();
 
+      // Sync to Google Sheets
+      try {
+        const studentInfoStmt = db.prepare('SELECT student_id, name, standard FROM students WHERE student_id = ?');
+        const syncRecords = student_ids.map(id => {
+          const s = studentInfoStmt.get(id) || {};
+          return {
+            date,
+            student_id: id,
+            name: s.name || '',
+            standard: s.standard || '',
+            status,
+            marked_by: session.username
+          };
+        });
+        syncAttendanceToGoogleSheets(syncRecords);
+      } catch (e) {
+        console.error('Error syncing attendance to Google Sheets:', e);
+      }
+
       return sendJSON(res, {
         success: true,
         message: `${successCount} students marked ${status} for ${date}.`
@@ -562,32 +591,30 @@ const server = http.createServer(async (req, res) => {
       // Sync to Excel
       syncDatabaseToExcel();
 
+      // Sync to Google Sheets
+      try {
+        const studentInfoStmt = db.prepare('SELECT student_id, name, standard FROM students WHERE student_id = ?');
+        const syncRecords = unmarkedStudents.map(s => {
+          const info = studentInfoStmt.get(s.student_id) || {};
+          return {
+            date,
+            student_id: s.student_id,
+            name: info.name || '',
+            standard: info.standard || '',
+            status: 'Absent',
+            marked_by: session.username
+          };
+        });
+        syncAttendanceToGoogleSheets(syncRecords);
+      } catch (e) {
+        console.error('Error syncing remaining absent to Google Sheets:', e);
+      }
+
       return sendJSON(res, {
         success: true,
         message: `Marked remaining ${count} students as Absent for ${date}.`,
         count
       }, 200);
-    } catch (error) {
-      return sendJSON(res, { error: error.message }, 500);
-    }
-  }
-
-  // DELETE /api/attendance (Admin Only)
-  if (pathname === '/api/attendance' && method === 'DELETE') {
-    if (!isAdmin) return sendJSON(res, { error: 'Forbidden. Admin privileges required.' }, 403);
-    try {
-      const studentId = parsedUrl.searchParams.get('student_id');
-      const date = parsedUrl.searchParams.get('date');
-      if (!studentId || !date) {
-        return sendJSON(res, { error: 'student_id and date are required.' }, 400);
-      }
-
-      db.prepare('DELETE FROM attendance WHERE student_id = ? AND attendance_date = ?').run(studentId, date);
-      
-      // Sync to Excel
-      syncDatabaseToExcel();
-
-      return sendJSON(res, { success: true, message: 'Attendance record cleared.' }, 200);
     } catch (error) {
       return sendJSON(res, { error: error.message }, 500);
     }
@@ -816,6 +843,7 @@ const server = http.createServer(async (req, res) => {
         'Content-Length': buffer.length
       });
       res.end(buffer);
+      return; // BUG FIX: must return here to avoid falling through to 404 handler
     } catch (error) {
       return sendJSON(res, { error: error.message }, 500);
     }
@@ -902,7 +930,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 // Start listening
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
   console.log(`Open http://localhost:${PORT} in your browser.`);
 });
