@@ -45,14 +45,19 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  height: 100%;
+  width: 100%;
+}
+
 body {
   font-family: var(--font-primary);
   background-color: var(--bg-app);
   color: var(--text-main);
   line-height: 1.5;
-  height: 100vh;
-  height: 100dvh;
-  height: -webkit-fill-available;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -68,14 +73,15 @@ input, select, textarea, button {
   width: 100%;
   max-width: 480px; /* Mobile constraints */
   margin: 0 auto;
-  height: 100vh;
-  height: 100dvh;
-  height: -webkit-fill-available;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-app);
   display: flex;
   flex-direction: column;
   position: relative;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
 /* View transition framework */
@@ -87,6 +93,8 @@ input, select, textarea, button {
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   background: var(--bg-app);
   animation: fadeIn 0.25s ease-out forwards;
 }
@@ -103,8 +111,10 @@ input, select, textarea, button {
 
 /* Scrollable screen content */
 .screen-content {
-  flex: 1;
+  flex: 1 1 0%;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 16px;
   padding-bottom: calc(180px + var(--safe-bottom)); /* Leave space for bottom bar / sticky buttons / FAB */
 }
