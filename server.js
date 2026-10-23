@@ -4,10 +4,18 @@ const path = require('path');
 const crypto = require('crypto');
 const { db, initDatabase, hashPassword, getNextStudentId } = require('./db');
 const { syncDatabaseToExcel, importStudentsFromExcelBuffer } = require('./excelSync');
-const { syncAttendanceToGoogleSheets, syncStudentToGoogleSheets } = require('./googleSheetsSync');
+const { syncAttendanceToGoogleSheets, syncStudentToGoogleSheets, restoreAttendanceFromGoogleSheets } = require('./googleSheetsSync');
 
 // Initialize SQLite DB
 initDatabase();
+
+// Restore attendance from Google Sheets if available
+restoreAttendanceFromGoogleSheets(db).then((restored) => {
+  if (restored) {
+    syncDatabaseToExcel();
+  }
+}).catch(err => console.error('[GoogleSheets] Restore error:', err));
+
 // Initial Sync to ensure students_attendance.xlsx is up-to-date
 syncDatabaseToExcel();
 

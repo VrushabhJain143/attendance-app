@@ -93,7 +93,72 @@ function syncStudentToGoogleSheets(student) {
   });
 }
 
+/**
+ * Pull attendance records from Google Sheets and restore into SQLite database
+ * @param {Object} db - SQLite database instance
+ */
+function restoreAttendanceFromGoogleSheets(db) {
+  if (!GOOGLE_SHEET_WEBHOOK_URL) {
+    return Promise.resolve(false);
+  }
+
+  console.log('[GoogleSheets] Fetching existing attendance records from Google Sheets...');
+
+  return new Promise((resolve) => {
+    function fetchUrl(targetUrl) {
+      https.get(targetUrl, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          fetchUrl(res.headers.location);
+          return;
+        }
+
+        let body = '';
+        res.on('data', chunk => body += chunk);
+        res.on('end', () => {
+          try {
+            const data = JSON.parse(body);
+            if (data.records && Array.isArray(data.records) && data.records.length > 0) {
+              const insertStmt = db.prepare(`
+                INSERT INTO attendance (attendance_date, student_id, status, marked_by)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(attendance_date, student_id) DO UPDATE SET
+                  status = excluded.status,
+                  marked_by = excluded.marked_by,
+                  marked_at = CURRENT_TIMESTAMP
+              `);
+
+              db.exec('BEGIN TRANSACTION');
+              let restoredCount = 0;
+              for (const r of data.records) {
+                if (r.date && r.student_id && r.status) {
+                  insertStmt.run(r.date, r.student_id, r.status, r.marked_by || 'admin');
+                  restoredCount++;
+                }
+              }
+              db.exec('COMMIT');
+              console.log(`[GoogleSheets] Successfully restored ${restoredCount} attendance records from Google Sheets!`);
+              resolve(true);
+            } else {
+              console.log('[GoogleSheets] No existing attendance records to restore.');
+              resolve(false);
+            }
+          } catch (e) {
+            console.error('[GoogleSheets] Error parsing records from Google Sheets:', e.message);
+            resolve(false);
+          }
+        });
+      }).on('error', (err) => {
+        console.error('[GoogleSheets] Error fetching from Google Sheets:', err.message);
+        resolve(false);
+      });
+    }
+
+    fetchUrl(GOOGLE_SHEET_WEBHOOK_URL);
+  });
+}
+
 module.exports = {
   syncAttendanceToGoogleSheets,
-  syncStudentToGoogleSheets
+  syncStudentToGoogleSheets,
+  restoreAttendanceFromGoogleSheets
 };
